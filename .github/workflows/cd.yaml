@@ -1,4 +1,4 @@
-name: CI
+name: CD
 
 # Cancel previous runs that are not completed
 concurrency:
@@ -6,7 +6,7 @@ concurrency:
   cancel-in-progress: true
 
 on:
-  push:
+  pull_request:
     branches:
       - "main"
 
@@ -29,6 +29,13 @@ jobs:
           images: 080196/crawler-website
           tags: |
             type=raw,value={{date 'YYYY-MM-DD'}}
+      - name: Extract matadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{secrets.DOCKER_USERNAME}}/website
+          tags:
+            type=raw,value={{date 'YYYY-MM-DD'}}
 
       - name: Deploy
         uses: appleboy/ssh-action@v1.0.3
@@ -39,20 +46,20 @@ jobs:
           port: 22
           script: |
             cd /home/ubuntu/crawler-demo
-            sh deploy.sh 080196/crawler-website ${{ steps.meta.outputs.tags }}
+            sh deploy.sh ${{secrets.DOCKER_USERNAME}}/website ${{ steps.meta.outputs.tags }}
 
-      # - name: Setup SSH
-      #   run: |
-      #     mkdir -p ~/.ssh/
-      #     echo "${{ secrets.SSH_PRIV_KEY }}" > ~/.ssh/id_rsa
-      #     chmod 600 ~/.ssh/id_rsa
-      #     ssh-keyscan -H ${{ secrets.IP }} >> ~/.ssh/known_hosts
+      - name: Setup SSH
+        run: |
+          mkdir -p ~/.ssh/
+          echo "${{ secrets.SSH_PRIV_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -H ${{ secrets.IP }} >> ~/.ssh/known_hosts
 
-      # - name: Deploy
-      #   run: |
-      #     rsync -avz -e deploy.sh ubuntu@${{ secrets.USER_IP }}:/home/ubuntu/crawler-demo/deploy.sh --delete --force
-      #     ssh ubuntu@${{ secrets.USER_IP }} <<EOF
-      #       cd /home/ubuntu/crawler-demo
-      #       sudo chmod +x deploy.sh
-      #       sh deploy.sh 080196/crawler-website ${{ env.SHORT_SHA }}
-      #     EOF
+      - name: Deploy
+        run: |
+          rsync -avz -e deploy.sh ubuntu@${{ secrets.USER_IP }}:/home/ubuntu/crawler-demo/deploy.sh --delete --force
+          ssh ubuntu@${{ secrets.USER_IP }} <<EOF
+          cd /home/ubuntu/crawler-demo
+          sudo chmod +x deploy.sh
+          sh deploy.sh 080196/crawler-website ${{ env.SHORT_SHA }}
+         EOF
