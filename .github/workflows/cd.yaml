@@ -20,7 +20,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: xuananhdocker/website
+          images: ${{secrets.DOCKER_USERNAME}}/website
           tags: |
             type=raw,value={{date 'YYYY-MM-DD'}}
       - name: Deploy
@@ -32,4 +32,4 @@ jobs:
           port: 22
           script: |
             cd /home/ubuntu/crawler-demo
-            sh deploy.sh 080196/crawler-website ${{steps.meta.outputs.tags}}
+            sh deploy.sh ${{secrets.DOCKER_USERNAME}}/website ${{steps.meta.outputs.tags}}
