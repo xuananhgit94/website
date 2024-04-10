@@ -26,9 +26,9 @@ jobs:
       - name: Deploy
         uses: appleboy/ssh-action@v1.0.3
         with:
-          host: ${{secret.HOST}}
+          host: ${{secrets.HOST}}
           username: ubuntu
-          key: ${{secret.SSH_PRIV_KEY}}
+          key: ${{secrets.SSH_PRIV_KEY}}
           port: 22
           script:
             cd /home/ubuntu/crawler-demo
