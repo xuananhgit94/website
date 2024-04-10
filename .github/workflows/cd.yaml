@@ -21,7 +21,7 @@ jobs:
         uses: docker/metadata-action@v5
         with:
           images: xuananhdocker/website
-          tags:
+          tags: |
             type=raw,value={{date 'YYYY-MM-DD'}}
       - name: Deploy
         uses: appleboy/ssh-action@v1.0.3
@@ -30,6 +30,6 @@ jobs:
           username: ubuntu
           key: ${{secrets.SSH_PRIV_KEY}}
           port: 22
-          script:
+          script: |
             cd /home/ubuntu/crawler-demo
-            sh deploy.sh 080196/crawler-website ${{steps.meta.outputs.tags}}
+            sh deploy.sh xuananhdocker/website ${{steps.meta.outputs.tags}}
