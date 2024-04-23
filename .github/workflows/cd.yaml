@@ -31,5 +31,5 @@ jobs:
           key: ${{secrets.SSH_PRIV_KEY}}
           port: 22
           script: |
-            cd /home/ubuntu/crawler-demo
-            sh deploy.sh 080196/crawler-website ${{steps.meta.outputs.tags}}
+            cd /home/ubuntu/prepare-migrate
+            sh deploy.sh ${{secrets.DOCKER_USERNAME}}/website ${{steps.meta.outputs.tags}}
