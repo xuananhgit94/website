@@ -57,7 +57,7 @@ jobs:
       - name: Save tag to EC2 (for CD)
         uses: appleboy/ssh-action@v1.0.3
         with:
-          host: ${{ secrets.HOST }}
+          host: ${{ secrets.SSH_HOST }}
           username: ubuntu
           key: ${{ secrets.SSH_KEY }}
           port: 22
