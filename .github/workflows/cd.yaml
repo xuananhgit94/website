@@ -1,0 +1,30 @@
+name: CD
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref || github.run_id }}
+  cancel-in-progress: true
+on:
+  push:
+    branches: [ master ]
+permissions:
+  contents: write
+  actions: read
+jobs:
+  deploy:
+    name: Deploy to EC2
+    runs-on: self-hosted
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Deploy to EC2 via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ubuntu
+          key: ${{ secrets.SSH_KEY }}
+          port: 22
+          script: |
+            TAG=$(cat /home/ubuntu/cdc-system-docker/website_tag.txt)
+            echo "Deploying image: ${{ secrets.DOCKER_USERNAME }}/website:${TAG}"
+            cd /home/ubuntu/cdc-system-docker
+            sh deploy.sh ${{ secrets.DOCKER_USERNAME }}/website ${{ secrets.DOCKER_USERNAME }}/website:${TAG}
+            sudo rm /home/ubuntu/cdc-system-docker/website_tag.txt
