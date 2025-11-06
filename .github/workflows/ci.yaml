@@ -1,16 +1,16 @@
 name: CI
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref || github.run_id }}
+  cancel-in-progress: true
 on:
   pull_request:
     branches: [ master ]
-concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
 permissions:
   contents: write
   actions: read
 jobs:
   build_and_push:
-    name: Build and Push Docker Image
+    name: Build Push and Cache Docker Image
     runs-on: self-hosted
     steps:
       - name: Checkout code
@@ -62,5 +62,5 @@ jobs:
           key: ${{ secrets.SSH_KEY }}
           port: 22
           script: |
-            echo "${{ env.TAG }}" > /home/ubuntu/cdc-system-docker/website_tag.txt
+            echo "${{ env.TAG }}" | sudo tee /home/ubuntu/cdc-system-docker/website_tag.txt > /dev/null
             echo "Saved tag ${{ env.TAG }} to /home/ubuntu/cdc-system-docker/website_tag.txt"
