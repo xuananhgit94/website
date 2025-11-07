@@ -16,7 +16,6 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
       - name: Set build tag
-        id: vars
         run: |
           TAG="$(date +'%Y-%m-%d-%s')"
           echo "TAG=$TAG" >> $GITHUB_ENV
